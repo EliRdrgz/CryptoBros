@@ -15,5 +15,4 @@ public class CryptoDTO {
     private String marketCap;
     private String rank;
     private String priceUsd;
-
 }
