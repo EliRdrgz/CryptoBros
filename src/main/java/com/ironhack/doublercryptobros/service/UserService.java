@@ -28,15 +28,31 @@ public class UserService {
         return UserDTO.fromEntity(userSaved);
     }
 
-    public Boolean authenticate(String username, String password) {
+    public UserDTO authenticate(String username, String password) {
         Optional<User> OptionalUser = userRepository.findByUsername(username);
         if(OptionalUser.isEmpty()) {
             System.out.println("The credentials are incorrect.");
-            return false;
+            return null;
         }
         // decodificar el password en base64
         User user = OptionalUser.get();
-        System.out.println("You are in");
-        return user.getPassword().equals(password);
+        if( user.getPassword().equals(password)){
+            System.out.println("You are in");
+            return UserDTO.fromEntity(user);
+        }
+        System.out.println("Authentication failed...");
+        return null;
     }
+
+    private UserDTO addToFavs(UserDTO user, String cryptoId) {
+        User userToUpdate = UserDTO.fromDTO(user);
+        List<CryptoFav> favs = new ArrayList<>();
+        favs.add(new CryptoFav(cryptoId));
+        userToUpdate.setFavs(favs);
+
+        User updatedUser = userRepository.save(userToUpdate);
+        return UserDTO.fromEntity(updatedUser);
+    }
+
+
 }

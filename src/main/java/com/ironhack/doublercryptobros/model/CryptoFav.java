@@ -18,6 +18,10 @@ public class CryptoFav {
     @ManyToMany
     private List<User> users;
 
+    public CryptoFav(String id) {
+        this.id = id;
+    }
+
     // grafico del historico de la moneda
 
 }
