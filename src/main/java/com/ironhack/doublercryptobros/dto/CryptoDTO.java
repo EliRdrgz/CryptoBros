@@ -7,7 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
-@ToString
+
 public class CryptoDTO {
     private String id;
     private String name;
@@ -17,4 +17,14 @@ public class CryptoDTO {
 
     private String rank;
     private String priceUsd;
+
+    @Override
+    public String toString() {
+        return  "Id: " + id + '\n'+
+                "Name: " + name + '\n' +
+                "Market Cap: " + marketCap + '\n' +
+                "Rank: " + rank + '\n' +
+                "Price Usd: " + priceUsd +'\n' +
+                "------------------------";
+    }
 }
