@@ -5,6 +5,8 @@ package com.ironhack.doublercryptobros.menu;
 import com.ironhack.doublercryptobros.console.ConsoleBuilder;
 import com.ironhack.doublercryptobros.service.CryptoService;
 import com.ironhack.doublercryptobros.service.UserService;
+
+import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.Console;
@@ -46,21 +48,49 @@ public class Menu {
         }
     }
 
-    private void logIn() {
-        System.out.println("Enter you username: ");
-        String user = scanner.nextLine();
-        System.out.println("Enter your password: ");
-        String password = String.valueOf(console.readPassword("Enter your password: "));
-        userService.authenticate(user, String.valueOf(password));
+    private void logIn() throws InterruptedException{
+            System.out.println("Enter you username: ");
+            String user = scanner.nextLine();
+            System.out.println("Enter your password: ");
+            String password = scanner.nextLine();
+            userService.authenticate(user, password);
+            boolean exit = false;
+            List<String> options = Arrays.asList("Show all cryptos", "Search by name", "Exit");
+            option = consoleBuilder.listConsoleInput("Choose what you want to do: ", options);
+            switch (option) {
+                case "SHOW ALL CRYPTOS" -> System.out.println("Show all cryptos.");
+                case "SEARCH BY NAME" -> System.out.println("Search by name");
+                case "EXIT" -> exit = true;
+                default -> System.out.println("Choose a correct option.");
+
+                }
+            }
+
+
+
+
+    public void loginMenu() throws InterruptedException {
+        boolean exit = false;
+
+        while (!exit) {
+            List<String> options = Arrays.asList("Show all cryptos", "Search by name", "Exit");
+            option = consoleBuilder.listConsoleInput("Choose what you want to do: ", options);
+            switch (option) {
+                case "SHOW ALL CRYPTOS" -> System.out.println("Show all cryptos.");
+                case "SEARCH BY NAME" -> System.out.println("Search by name");
+                case "EXIT" -> exit = true;
+                default -> System.out.println("Choose a correct option.");
+            }
+        }
     }
-
-
 
     private void signIn() {
         System.out.println("Enter you username: ");
         String user = scanner.nextLine();
         System.out.println("Enter your password: ");
-        String password = String.valueOf(console.readPassword("Enter your password: "));
+        //String password = scanner.nextLine();
+        String password = String.valueOf(console.readPassword("Enter your password: ",user));
+        //String password = new jline.ConsoleReader().readLine(new Character('*'));
         userService.register(user,password);
 
     }
