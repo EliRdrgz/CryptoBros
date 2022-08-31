@@ -25,6 +25,6 @@ public class CryptoDTO {
                 "Market Cap: " + marketCap + '\n' +
                 "Rank: " + rank + '\n' +
                 "Price Usd: " + priceUsd +'\n' +
-                "------------------------";
+                "----------------------------------------";
     }
 }

@@ -37,7 +37,7 @@ public class UserService {
         // decodificar el password en base64
         User user = OptionalUser.get();
         if( user.getPassword().equals(password)){
-            System.out.println("You are in");
+            System.out.println("You are in! Wellcome back.");
             return UserDTO.fromEntity(user);
         }
         System.out.println("Authentication failed...");

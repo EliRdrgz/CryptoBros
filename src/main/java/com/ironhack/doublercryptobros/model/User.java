@@ -27,8 +27,16 @@ public class User {
     private List<CryptoFav> favs;
 
     public User(String username, String password, List<CryptoFav> favs) {
-        this.username = username;
-        this.password = password;
+        if(this.username.length() < 2){
+            System.out.println("The username has to be more than 3 characters.");
+        }else{
+            this.username = username;
+        }
+        if(this.password.isEmpty()){
+            System.out.println("Not valid password. Please enter a correct password.");
+        }else {
+            this.password = password;
+        }
         this.favs = favs;
     }
 }

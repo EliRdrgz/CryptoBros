@@ -3,6 +3,7 @@ package com.ironhack.doublercryptobros.menu;
 
 
 import com.ironhack.doublercryptobros.console.ConsoleBuilder;
+import com.ironhack.doublercryptobros.console.ConsoleColors;
 import com.ironhack.doublercryptobros.dto.CryptoDTO;
 import com.ironhack.doublercryptobros.dto.ListCryptoResponse;
 import com.ironhack.doublercryptobros.dto.UserDTO;
@@ -40,20 +41,20 @@ public class Menu {
         boolean exit = false;
 
         while (!exit) {
-            List<String> options = Arrays.asList("Log In", "Sign Up", "About Us", "Exit");
-            option = consoleBuilder.listConsoleInput("Welcome to CryptoBros Application. What would you like to do?", options);
+            List<String> options = Arrays.asList("\uD83D\uDD13 Log In", "\uD83C\uDD95 Sign Up", "\uD83D\uDC65 About Us", "\uD83D\uDD19 Exit");
+            option = consoleBuilder.listConsoleInput(ConsoleColors.BLUE_BACKGROUND_BRIGHT + ConsoleColors.WHITE_BOLD_BRIGHT +"⚡⚡⚡ \uD83D\uDCC8\uD83D\uDCC9 Welcome to CryptoBros Application. What would you like to do?\uD83D\uDCC8\uD83D\uDCC9 ⚡⚡⚡", options);
             switch (option) {
-                case "LOG IN" -> logIn();
-                case "SIGN UP" -> signUp();
-                case "ABOUT US" -> System.out.println("Somos los crypto bro");
-                case "EXIT" -> exit = true;
+                case "\uD83D\uDD13 LOG IN" -> logIn();
+                case "\uD83C\uDD95 SIGN UP" -> signUp();
+                case "\uD83D\uDC65 ABOUT US" -> System.out.println("Somos los crypto bro");
+                case "\uD83D\uDD19 EXIT" -> exit = true;
                 default -> System.out.println("Choose a correct option.");
             }
         }
     }
 
     private void logIn() throws InterruptedException {
-        System.out.println("Enter you username: ");
+        System.out.println("Enter your username: ");
         String user = scanner.nextLine();
         System.out.println("Enter your password: ");
         String password = scanner.nextLine();
@@ -81,7 +82,7 @@ public class Menu {
         }
     }
 
-    private void findCryptoByName(){
+    private void findCryptoByName() {
         boolean exit = false;
 
         System.out.println("Which crypto do you want to see?");
@@ -110,10 +111,16 @@ public class Menu {
 
     }
 
-    private void findCryptos(){
+    private void findCryptos() {
         System.out.println("Loading...");
-        System.out.println("------------------------");
         List<CryptoDTO> list = cryptoService.findAllCryptos().getData();
+        System.out.println("----------------------------------------");
+        System.out.println("------------------ALL-------------------");
+        System.out.println("----------------CRYPTOS-----------------");
+        System.out.println("-------------------₿--------------------");
+        System.out.println("----------------------------------------");
+
+
         //Añadir título a la lista y formatear price Usd y market cap a 2 decimales.
         list.forEach((System.out::println));
 //      System.out.println(cryptoService.findAllCryptos().getData());
@@ -125,18 +132,24 @@ public class Menu {
         String username = scanner.nextLine();
         System.out.println("Enter your password: ");
         String password = scanner.nextLine();
-        //String password = new String(System.console().readPassword("Enter your password: "));
-        //char[] password = console.readPassword("%s", "Enter your password");
-        //String password = new jline.ConsoleReader().readLine(new Character('*'));
-        try {
-            userService.register(username, password);
-            System.out.println("User successfully registered");
-            loginMenu();
-        } catch (Exception error) {
-            System.out.println("Invalid username, try again");
+        System.out.println("Enter your password again: ");
+        String password1 = scanner.nextLine();
+        if (password.equals(password1)) {
+            try {
+                userService.register(username, password);
+                System.out.println("User successfully registered");
+                loginMenu();
+            } catch (Exception error) {
+                System.out.println("Invalid username, try again");
+            }
+            //String password = new String(System.console().readPassword("Enter your password: "));
+            //char[] password = console.readPassword("%s", "Enter your password");
+            //String password = new jline.ConsoleReader().readLine(new Character('*'));
+
+        } else {
+            System.out.println("The passwords does not equals.");
         }
+
+
     }
-
-
-
 }
