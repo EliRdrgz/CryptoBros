@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,10 +22,10 @@ public class UserService {
 
     public UserDTO register(String username, String password) {
         List<CryptoFav> favsList = new ArrayList<>();
-        // codificar el password en base64
-        User userToRegister = new User(username, password, favsList);
+        String encodedPassword = Base64.getEncoder().encodeToString(password.getBytes());
+        User userToRegister = new User(username, encodedPassword, favsList);
         User userSaved = userRepository.save(userToRegister);
-        System.out.println("User registered.");
+
         return UserDTO.fromEntity(userSaved);
     }
 
@@ -36,8 +37,9 @@ public class UserService {
         }
         // decodificar el password en base64
         User user = OptionalUser.get();
-        if( user.getPassword().equals(password)){
-            System.out.println("You are in! Wellcome back.");
+        String decodedPassword = new String(Base64.getDecoder().decode(user.getPassword()));
+        if(decodedPassword.equals(password)){
+            System.out.println("You are in! Wellcome back " + user.getUsername());
             return UserDTO.fromEntity(user);
         }
         System.out.println("Authentication failed...");
