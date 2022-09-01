@@ -58,11 +58,13 @@ public class Menu {
         String user = scanner.nextLine();
         System.out.println("Enter your password: ");
         String password = scanner.nextLine();
-        setUserLoggedIn(userService.authenticate(user, password));
-
-        if (!getUserLoggedIn().getUsername().isBlank()) {
+        var authenticationResponse = userService.authenticate(user, password);
+        if(authenticationResponse.getAuthorized()) {
+            setUserLoggedIn(authenticationResponse.getUser());
+            System.out.println("Login successfully! Welcome, " + authenticationResponse.getUser().getUsername());
             loginMenu();
         } else {
+            System.out.println("Authentication failed. Try again");
             logIn();
         }
     }
@@ -150,6 +152,6 @@ public class Menu {
             System.out.println("The passwords does not equals.");
         }
 
-
     }
+
 }

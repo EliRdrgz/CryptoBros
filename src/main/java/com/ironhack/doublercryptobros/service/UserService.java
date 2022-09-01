@@ -4,6 +4,7 @@ import com.ironhack.doublercryptobros.dto.UserDTO;
 import com.ironhack.doublercryptobros.model.CryptoFav;
 import com.ironhack.doublercryptobros.model.User;
 import com.ironhack.doublercryptobros.repository.UserRepository;
+import com.ironhack.doublercryptobros.utils.AuthenticationResponse;
 import lombok.ToString;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,21 +30,28 @@ public class UserService {
         return UserDTO.fromEntity(userSaved);
     }
 
-    public UserDTO authenticate(String username, String password) {
+    public AuthenticationResponse authenticate(String username, String password) {
         Optional<User> OptionalUser = userRepository.findByUsername(username);
-        if(OptionalUser.isEmpty()) {
-            System.out.println("The credentials are incorrect.");
-            return null;
+        AuthenticationResponse authenticationResponse = new AuthenticationResponse();
+
+        if(OptionalUser.isPresent()) {
+            User user = OptionalUser.get();
+            String decodedPassword = new String(Base64.getDecoder().decode(user.getPassword()));
+
+            if(decodedPassword.equals(password)){
+                authenticationResponse.setUser(UserDTO.fromEntity(user));
+                authenticationResponse.setAuthorized(true);
+                return authenticationResponse;
+            } else {
+                authenticationResponse.setUser(null);
+                authenticationResponse.setAuthorized(false);
+            }
+        } else {
+            authenticationResponse.setUser(null);
+            authenticationResponse.setAuthorized(false);
         }
-        // decodificar el password en base64
-        User user = OptionalUser.get();
-        String decodedPassword = new String(Base64.getDecoder().decode(user.getPassword()));
-        if(decodedPassword.equals(password)){
-            System.out.println("You are in! Wellcome back " + user.getUsername());
-            return UserDTO.fromEntity(user);
-        }
-        System.out.println("Authentication failed...");
-        return null;
+
+        return authenticationResponse;
     }
 
     private UserDTO addToFavs(UserDTO user, String cryptoId) {
