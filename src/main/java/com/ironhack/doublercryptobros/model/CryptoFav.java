@@ -1,21 +1,22 @@
 package com.ironhack.doublercryptobros.model;
 
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.List;
 
 @NoArgsConstructor
 @Entity
+@Getter
+@Setter
 public class CryptoFav {
 
     @Id
     private String id;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "favs", fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     private List<User> users;
 
     public CryptoFav(String id) {

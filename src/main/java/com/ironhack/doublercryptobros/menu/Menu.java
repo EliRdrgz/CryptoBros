@@ -2,16 +2,17 @@ package com.ironhack.doublercryptobros.menu;
 
 
 
+import com.ironhack.doublercryptobros.DoubleRCryptoBrosApplication;
 import com.ironhack.doublercryptobros.console.ConsoleBuilder;
-import com.ironhack.doublercryptobros.console.ConsoleColors;
 import com.ironhack.doublercryptobros.dto.CryptoDTO;
-import com.ironhack.doublercryptobros.dto.ListCryptoResponse;
-import com.ironhack.doublercryptobros.dto.UserDTO;
+import com.ironhack.doublercryptobros.model.CryptoFav;
 import com.ironhack.doublercryptobros.service.CryptoService;
 import com.ironhack.doublercryptobros.service.UserService;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -26,7 +27,7 @@ public class Menu {
     CryptoService cryptoService;
     UserService userService;
 
-    private UserDTO userLoggedIn;
+    private Long userId;
 
     private String option;
 
@@ -42,12 +43,12 @@ public class Menu {
 
         while (!exit) {
             List<String> options = Arrays.asList("\uD83D\uDD13 Log In", "\uD83C\uDD95 Sign Up", "\uD83D\uDC65 About Us", "\uD83D\uDD19 Exit");
-            option = consoleBuilder.listConsoleInput(ConsoleColors.BLUE_BACKGROUND_BRIGHT + ConsoleColors.WHITE_BOLD_BRIGHT +"⚡⚡⚡ \uD83D\uDCC8\uD83D\uDCC9 Welcome to CryptoBros Application. What would you like to do?\uD83D\uDCC8\uD83D\uDCC9 ⚡⚡⚡", options);
+            option = consoleBuilder.listConsoleInput("⚡⚡⚡ \uD83D\uDCC8\uD83D\uDCC9 Welcome to CryptoBros Application. What would you like to do?\uD83D\uDCC8\uD83D\uDCC9 ⚡⚡⚡", options);
             switch (option) {
                 case "\uD83D\uDD13 LOG IN" -> logIn();
                 case "\uD83C\uDD95 SIGN UP" -> signUp();
                 case "\uD83D\uDC65 ABOUT US" -> System.out.println("Somos los crypto bro");
-                case "\uD83D\uDD19 EXIT" -> exit = true;
+                case "\uD83D\uDD19 EXIT" -> System.exit(0);
                 default -> System.out.println("Choose a correct option.");
             }
         }
@@ -60,12 +61,11 @@ public class Menu {
         String password = scanner.nextLine();
         var authenticationResponse = userService.authenticate(user, password);
         if(authenticationResponse.getAuthorized()) {
-            setUserLoggedIn(authenticationResponse.getUser());
+            setUserId(authenticationResponse.getUser().getId());
             System.out.println("Login successfully! Welcome, " + authenticationResponse.getUser().getUsername());
             loginMenu();
         } else {
             System.out.println("Authentication failed. Try again");
-            logIn();
         }
     }
 
@@ -95,22 +95,40 @@ public class Menu {
         System.out.println(cryptoById);
 
         while (!exit) {
-            List<String> options = Arrays.asList("Add to favs", "Remove from favs", "Back");
+            List<String> options = new ArrayList<>();
+            var favs = userService.checkFavs(userId);
+            boolean isFav = false;
+            if(favs.size() > 0) {
+                for (CryptoFav fav : favs) {
+                    if (fav.getId().equals(cryptoById.getId())) {
+                        isFav = true;
+                        break;
+                    }
+                }
+                if (isFav) options.add(("Remove from favs"));
+                else options.add("Add to favs");
+            } else {
+                options.add("Add to favs");
+            }
+            options.add("Back");
             option = consoleBuilder.listConsoleInput("Choose what you want to do: ", options);
             switch (option) {
-                case "ADD TO FAVS" -> addToFavs();
-                case "REMOVE FROM FAVS" -> removeFromFavs();
+                case "ADD TO FAVS" -> addToFavs(id);
+                case "REMOVE FROM FAVS" -> removeFromFavs(id);
                 case "BACK" -> exit = true;
                 default -> System.out.println("Choose a correct option.");
             }
         }
     }
 
-    private void removeFromFavs() {
+    private void removeFromFavs(String id) {
+        var userUpdated = userService.removeFav(userId, id);
+        System.out.println(userUpdated.getFavs());
     }
 
-    private void addToFavs() {
-
+    private void addToFavs(String id) {
+        var userUpdated = userService.addToFavs(userId, id);
+        System.out.println(userUpdated.getFavs());
     }
 
     private void findCryptos() {
@@ -138,8 +156,9 @@ public class Menu {
         String password1 = scanner.nextLine();
         if (password.equals(password1)) {
             try {
-                userService.register(username, password);
+                var user = userService.register(username, password);
                 System.out.println("User successfully registered");
+                setUserId(user.getId());
                 loginMenu();
             } catch (Exception error) {
                 System.out.println("Invalid username, try again");

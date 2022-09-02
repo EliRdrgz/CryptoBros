@@ -3,9 +3,15 @@ package com.ironhack.doublercryptobros.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.data.repository.cdi.Eager;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.List;
+
+import static javax.persistence.FetchType.EAGER;
+import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @NoArgsConstructor
@@ -23,7 +29,11 @@ public class User {
 
     private String password;
 
-    @ManyToMany(mappedBy = "users")
+    @ManyToMany(fetch = EAGER, cascade = CascadeType.PERSIST)
+    @JoinTable(
+            name = "crypto_fav_users",
+            joinColumns = @JoinColumn(name = "user_id" , referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "crypto_fav_id",  referencedColumnName = "id"))
     private List<CryptoFav> favs;
 
     public User(String username, String password, List<CryptoFav> favs) {
