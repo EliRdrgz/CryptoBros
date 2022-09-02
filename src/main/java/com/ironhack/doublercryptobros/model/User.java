@@ -36,7 +36,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "crypto_fav_id",  referencedColumnName = "id"))
     private List<CryptoFav> favs;
 
-    public User(String username, String password, List<CryptoFav> favs) {
+    public User(String username, String password) {
         if(username.length() < 2){
             System.out.println("The username has to be more than 3 characters.");
         }else{
@@ -47,6 +47,5 @@ public class User {
         }else {
             setPassword(password);
         }
-        setFavs(favs);
     }
 }

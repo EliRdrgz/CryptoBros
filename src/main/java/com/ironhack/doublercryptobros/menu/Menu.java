@@ -15,6 +15,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
+import java.io.Console;
 import java.util.*;
 
 @Component
@@ -23,12 +24,12 @@ import java.util.*;
 public class Menu {
 
     Scanner scanner;
+    Console console = System.console();
     ConsoleBuilder consoleBuilder;
     CryptoService cryptoService;
     UserService userService;
 
     private Long userId;
-
     private String option;
 
     public Menu(CryptoService cryptoService, UserService userService) {
@@ -40,7 +41,6 @@ public class Menu {
 
     public void start() throws InterruptedException {
         boolean exit = false;
-
         while (!exit) {
             List<String> options = Arrays.asList("\uD83D\uDD13 Log In", "\uD83C\uDD95 Sign Up", "\uD83D\uDC65 About Us", "\uD83D\uDD19 Exit");
             option = consoleBuilder.listConsoleInput("⚡⚡⚡ \uD83D\uDCC8\uD83D\uDCC9 Welcome to CryptoBros Application. What would you like to do?\uD83D\uDCC8\uD83D\uDCC9 ⚡⚡⚡", options);
@@ -54,13 +54,51 @@ public class Menu {
         }
     }
 
+    private void signUp() throws InterruptedException {
+        System.out.println("Enter you username: ");
+        String username = scanner.nextLine();
+        System.out.println("Enter your password: ");
+        String password = getPassword();
+        System.out.println("Enter your password again: ");
+        String password1 = getPassword();
+
+        if (password.equals(password1)) {
+            try {
+                var user = userService.register(username, password);
+                System.out.println("User successfully registered");
+                setUserId(user.getId());
+                loginMenu();
+            } catch (Exception error) {
+                System.out.println("Invalid username, try again");
+            }
+        } else {
+            System.out.println("The passwords does not equals.");
+        }
+    }
+
+    private String getPassword() {
+        String password;
+        if (console != null) {
+            password = new String(console.readPassword());
+        } else {
+            password = scanner.nextLine();
+        }
+        return password;
+    }
+
+
     private void logIn() throws InterruptedException {
         System.out.println("Enter your username: ");
         String user = scanner.nextLine();
         System.out.println("Enter your password: ");
-        String password = scanner.nextLine();
+        String password;
+        if (console != null) {
+            password = new String(console.readPassword());
+        } else {
+            password = scanner.nextLine();
+        }
         var authenticationResponse = userService.authenticate(user, password);
-        if(authenticationResponse.getAuthorized()) {
+        if (authenticationResponse.getAuthorized()) {
             setUserId(authenticationResponse.getUser().getId());
             System.out.println("Login successfully! Welcome, " + authenticationResponse.getUser().getUsername());
             loginMenu();
@@ -91,44 +129,48 @@ public class Menu {
         String id = scanner.nextLine();
         System.out.println("Loading...");
         System.out.println("------------------------");
-        CryptoDTO cryptoById = cryptoService.findCryptoById(id);
-        System.out.println(cryptoById);
-
-        while (!exit) {
-            List<String> options = new ArrayList<>();
-            var favs = userService.checkFavs(userId);
-            boolean isFav = false;
-            if(favs.size() > 0) {
-                for (CryptoFav fav : favs) {
-                    if (fav.getId().equals(cryptoById.getId())) {
-                        isFav = true;
-                        break;
+        try{
+            CryptoDTO cryptoById = cryptoService.findCryptoById(id);
+            System.out.println(cryptoById);
+            while (!exit) {
+                List<String> options = new ArrayList<>();
+                var favs = userService.checkFavs(userId);
+                boolean isFav = false;
+                if (favs.size() > 0) {
+                    for (CryptoFav fav : favs) {
+                        if (fav.getId().equals(cryptoById.getId())) {
+                            isFav = true;
+                            break;
+                        }
                     }
+                    if (isFav) options.add(("Remove from favs"));
+                    else options.add("Add to favs");
+                } else {
+                    options.add("Add to favs");
                 }
-                if (isFav) options.add(("Remove from favs"));
-                else options.add("Add to favs");
-            } else {
-                options.add("Add to favs");
+                options.add("Back");
+                option = consoleBuilder.listConsoleInput("Choose what you want to do: ", options);
+                switch (option) {
+                    case "ADD TO FAVS" -> addToFavs(id);
+                    case "REMOVE FROM FAVS" -> removeFromFavs(id);
+                    case "BACK" -> exit = true;
+                    default -> System.out.println("Choose a correct option.");
+                }
             }
-            options.add("Back");
-            option = consoleBuilder.listConsoleInput("Choose what you want to do: ", options);
-            switch (option) {
-                case "ADD TO FAVS" -> addToFavs(id);
-                case "REMOVE FROM FAVS" -> removeFromFavs(id);
-                case "BACK" -> exit = true;
-                default -> System.out.println("Choose a correct option.");
-            }
+        } catch (Error err) {
+            System.out.println("Unable to found this coin. Please try again");
+            findCryptoByName();
         }
     }
 
     private void removeFromFavs(String id) {
         var userUpdated = userService.removeFav(userId, id);
-        System.out.println(userUpdated.getFavs());
+        System.out.println("List of favs: "+ "\n" + userUpdated.getFavs());
     }
 
     private void addToFavs(String id) {
         var userUpdated = userService.addToFavs(userId, id);
-        System.out.println(userUpdated.getFavs());
+        System.out.println("List of favs: " + "\n" + userUpdated.getFavs());
     }
 
     private void findCryptos() {
@@ -145,32 +187,5 @@ public class Menu {
         list.forEach((System.out::println));
 //      System.out.println(cryptoService.findAllCryptos().getData());
     }
-
-    private void signUp() throws InterruptedException {
-        //Console console = System.console();
-        System.out.println("Enter you username: ");
-        String username = scanner.nextLine();
-        System.out.println("Enter your password: ");
-        String password = scanner.nextLine();
-        System.out.println("Enter your password again: ");
-        String password1 = scanner.nextLine();
-        if (password.equals(password1)) {
-            try {
-                var user = userService.register(username, password);
-                System.out.println("User successfully registered");
-                setUserId(user.getId());
-                loginMenu();
-            } catch (Exception error) {
-                System.out.println("Invalid username, try again");
-            }
-            //String password = new String(System.console().readPassword("Enter your password: "));
-            //char[] password = console.readPassword("%s", "Enter your password");
-            //String password = new jline.ConsoleReader().readLine(new Character('*'));
-
-        } else {
-            System.out.println("The passwords does not equals.");
-        }
-
-    }
-
 }
+

@@ -23,6 +23,8 @@ public class CryptoFav {
         this.id = id;
     }
 
-    // grafico del historico de la moneda
-
+    @Override
+    public String toString() {
+        return  "Name: " + id + '\n';
+    }
 }

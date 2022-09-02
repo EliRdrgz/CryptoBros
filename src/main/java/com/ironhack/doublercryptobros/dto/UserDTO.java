@@ -35,4 +35,12 @@ public class UserDTO {
 
         return user;
     }
+
+    @Override
+    public String toString() {
+        return  "Id: " + id + '\n'+
+                "Name: " + username + '\n' +
+                "Favourite cryptos: " + favs + '\n' +
+                "----------------------------------------";
+    }
 }

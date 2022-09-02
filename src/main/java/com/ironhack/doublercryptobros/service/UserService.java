@@ -29,19 +29,17 @@ public class UserService {
 
     public UserDTO register(String username, String password) {
         String encodedPassword = Base64.getEncoder().encodeToString(password.getBytes());
-        User userToRegister = new User(username, encodedPassword, null);
+        User userToRegister = new User(username, encodedPassword);
         User userSaved = userRepository.save(userToRegister);
 
         return UserDTO.fromEntity(userSaved);
     }
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public AuthenticationResponse authenticate(String username, String password) {
         Optional<User> OptionalUser = userRepository.findByUsername(username);
         AuthenticationResponse authenticationResponse = new AuthenticationResponse();
 
         if(OptionalUser.isPresent()) {
             User user = OptionalUser.get();
-            var favs = user.getFavs();
             String decodedPassword = new String(Base64.getDecoder().decode(user.getPassword()));
 
             if(decodedPassword.equals(password)){
@@ -59,18 +57,10 @@ public class UserService {
 
         return authenticationResponse;
     }
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public UserDTO addToFavs(Long userId, String cryptoId) {
         User userToUpdate = userRepository.findById(userId).get();
         CryptoFav cryptoFav = getCryptoFav(cryptoId);
-
-        if(userToUpdate.getFavs().size() < 1) {
-            List<CryptoFav> favs = new ArrayList<>();
-            favs.add(cryptoFav);
-            userToUpdate.setFavs(favs);
-        } else {
-            userToUpdate.getFavs().add(new CryptoFav(cryptoId));
-        }
+        userToUpdate.getFavs().add(cryptoFav);
         User updatedUser = userRepository.save(userToUpdate);
         return UserDTO.fromEntity(updatedUser);
     }
