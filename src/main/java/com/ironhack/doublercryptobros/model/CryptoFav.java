@@ -25,6 +25,6 @@ public class CryptoFav {
 
     @Override
     public String toString() {
-        return  "Name: " + id + '\n';
+        return  id;
     }
 }

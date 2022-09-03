@@ -111,15 +111,21 @@ public class Menu {
         boolean exit = false;
 
         while (!exit) {
-            List<String> options = Arrays.asList("Show all cryptos", "Search by name", "Exit");
+            List<String> options = Arrays.asList("Show all cryptos", "Search by name", "Show favs", "Exit");
             option = consoleBuilder.listConsoleInput("Choose what you want to do: ", options);
             switch (option) {
                 case "SHOW ALL CRYPTOS" -> findCryptos();
                 case "SEARCH BY NAME" -> findCryptoByName();
+                case "SHOW FAVS" -> getUserFavs(userId);
                 case "EXIT" -> exit = true;
                 default -> System.out.println("Choose a correct option.");
             }
         }
+    }
+
+    private void getUserFavs(Long id) {
+        List<CryptoFav> favList = userService.getUserFavList(id);
+        System.out.println(favList);
     }
 
     private void findCryptoByName() {

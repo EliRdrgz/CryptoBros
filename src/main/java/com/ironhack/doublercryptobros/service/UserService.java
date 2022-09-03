@@ -95,4 +95,9 @@ public class UserService {
         User updatedUser = userRepository.save(userToUpdate);
         return UserDTO.fromEntity(updatedUser);
     }
+
+    public List<CryptoFav> getUserFavList(Long id) {
+        var user = userRepository.findById(id).get();
+        return user.getFavs();
+    }
 }
