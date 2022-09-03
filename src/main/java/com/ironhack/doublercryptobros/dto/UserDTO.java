@@ -26,4 +26,21 @@ public class UserDTO {
 
         return userDTO;
     }
+
+    public static User fromDTO (UserDTO dto) {
+        User user = new User();
+        user.setId(dto.getId());
+        user.setUsername(dto.getUsername());
+        user.setFavs(dto.getFavs());
+
+        return user;
+    }
+
+    @Override
+    public String toString() {
+        return  "Id: " + id + '\n'+
+                "Name: " + username + '\n' +
+                "Favourite cryptos: " + favs + '\n' +
+                "----------------------------------------";
+    }
 }
